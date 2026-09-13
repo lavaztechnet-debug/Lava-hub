@@ -1,0 +1,6 @@
+{
+  "name": "Lava-Bot",
+  "description": "An AI-powered productivity app featuring Lava-Bot, Lava-Prompts, and Lava-Notes, styled with a Neumorphic design.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,101 @@
+                className={`text-xs px-2 py-1 rounded-md transition-colors ${activeNote.category === cat ? 'neo-pressed font-bold text-blue-500' : 'neo-flat text-[var(--neo-text-muted)] hover:opacity-80'} ${isPreviewMode ? 'opacity-70 cursor-default' : ''}`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+          
+          {!isPreviewMode && (
+            <div className="flex gap-2 mb-2 p-1.5 rounded-lg bg-[var(--neo-shadow-light)] shadow-[inset_2px_2px_5px_var(--neo-shadow-dark),_inset_-2px_-2px_5px_var(--neo-bg)] overflow-x-auto shrink-0">
+              <button onClick={() => insertMarkdown('**', '**')} className="p-1.5 rounded text-[var(--neo-text-muted)] hover:text-[var(--neo-text)] hover:bg-[var(--neo-bg)] transition-colors shrink-0" title="Bold"><Bold size={16} /></button>
+              <button onClick={() => insertMarkdown('*', '*')} className="p-1.5 rounded text-[var(--neo-text-muted)] hover:text-[var(--neo-text)] hover:bg-[var(--neo-bg)] transition-colors shrink-0" title="Italic"><Italic size={16} /></button>
+              <button onClick={() => insertMarkdown('[', '](url)')} className="p-1.5 rounded text-[var(--neo-text-muted)] hover:text-[var(--neo-text)] hover:bg-[var(--neo-bg)] transition-colors shrink-0" title="Link"><Link size={16} /></button>
+              <button onClick={() => insertMarkdown('- ')} className="p-1.5 rounded text-[var(--neo-text-muted)] hover:text-[var(--neo-text)] hover:bg-[var(--neo-bg)] transition-colors shrink-0 mr-2" title="Bullet List"><List size={16} /></button>
+              
+              <div className="w-[1px] bg-[var(--neo-text-muted)] opacity-20 my-1 shrink-0"></div>
+              
+              <button 
+                onClick={toggleRecording} 
+                className={`p-1.5 rounded transition-all shrink-0 ml-2 ${isRecording ? 'text-red-500 bg-[var(--neo-bg)] shadow-[inset_2px_2px_5px_var(--neo-shadow-dark),_inset_-2px_-2px_5px_var(--neo-shadow-light)]' : 'text-[var(--neo-text-muted)] hover:text-[var(--neo-text)] hover:bg-[var(--neo-bg)]'}`}
+                title={isRecording ? "Stop dictation" : "Start dictation"}
+              >
+                {isRecording ? <MicOff size={16} className="animate-pulse" /> : <Mic size={16} />}
+              </button>
+            </div>
+          )}
+          
+          {isPreviewMode ? (
+            <div className="flex-1 overflow-y-auto markdown-body">
+              <Markdown>{activeNote.content || '*Empty note*'}</Markdown>
+            </div>
+          ) : (
+            <textarea 
+              ref={textareaRef}
+              value={activeNote.content}
+              onChange={(e) => updateActiveNote({ content: e.target.value })}
+              placeholder="Start typing your Markdown note here..." 
+              className="bg-transparent border-none outline-none resize-none flex-1 placeholder-[var(--neo-text-muted)]"
+              style={{ color: 'var(--neo-text)' }}
+            />
+          )}
+          
+          <div className="flex justify-end gap-4 text-xs font-medium text-[var(--neo-text-muted)] mt-2 pb-16">
+            <span>{activeNote.content.trim() ? activeNote.content.trim().split(/\s+/).length : 0} words</span>
+            <span>{activeNote.content.length} characters</span>
+          </div>
+        </div>
+
+        {/* Quick Actions Floating Menu */}
+        <div className="absolute bottom-6 right-6 flex flex-col items-end gap-3 z-50">
+          <AnimatePresence>
+            {showQuickActions && (
+              <motion.div
+                initial={{ opacity: 0, y: 15, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 15, scale: 0.9 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                className="flex flex-col gap-2 bg-[var(--neo-bg)] p-3 rounded-2xl"
+                style={{ boxShadow: 'var(--neo-shadow-light) -5px -5px 15px, var(--neo-shadow-dark) 5px 5px 15px' }}
+              >
+                <button 
+                  onClick={handleDuplicateNote} 
+                  className="flex items-center gap-3 neo-button px-4 py-3 text-sm font-semibold rounded-xl text-[var(--neo-text)]"
+                >
+                  <Copy size={16} /> Duplicate Note
+                </button>
+                <button 
+                  onClick={handleTrashNote} 
+                  className="flex items-center gap-3 neo-button px-4 py-3 text-sm font-semibold rounded-xl text-red-500"
+                >
+                  <Trash2 size={16} /> Move to Trash
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+          <button 
+            onClick={() => setShowQuickActions(!showQuickActions)}
+            className={`neo-button h-14 w-14 rounded-full flex items-center justify-center transition-all duration-300 ${showQuickActions ? 'neo-pressed rotate-90 text-blue-500' : 'text-[var(--neo-text-muted)]'}`}
+          >
+            {showQuickActions ? <X size={24} /> : <MoreVertical size={24} />}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col h-full gap-6">
+      <div className="flex justify-between items-center mb-2">
+        <h2 className="font-semibold text-lg">My Notes</h2>
+        <div className="flex gap-4 items-center">
+          <div className="relative">
+            <select 
+              value={sortBy} 
+              onChange={(e) => setSortBy(e.target.value as any)}
+              className="neo-button appearance-none px-4 py-2 pr-8 text-sm outline-none cursor-pointer text-[var(--neo-text)] bg-transparent"
+            >
+              <option value="Last Modified" className="bg-[var(--neo-bg)]">Last Modified</option>
+              <option value="Created Date" className="bg-[var(--neo-bg)]">Created Date</option>
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-[var(--neo-text-muted)]">
+              <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">

@@ -1,0 +1,164 @@
+function NotesScreen() {
+  const [notes, setNotes] = useState<Note[]>(() => {
+    const saved = localStorage.getItem('neo_notes_list');
+    if (saved) return JSON.parse(saved);
+    const now = Date.now();
+    return [{
+      id: '1',
+      title: 'Project Architecture Notes',
+      content: '- Use MVVM pattern\n- Room DB for local storage\n- Hilt for Dependency Injection\n- Jetpack Compose for UI',
+      category: 'Work',
+      timestamp: now,
+      createdAt: now
+    }];
+  });
+
+  const [activeNoteId, setActiveNoteId] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<'Last Modified' | 'Created Date'>('Last Modified');
+  const [showQuickActions, setShowQuickActions] = useState(false);
+  const [isPreviewMode, setIsPreviewMode] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const recognitionRef = useRef<any>(null);
+
+  // Save to local storage on change
+  useEffect(() => {
+    localStorage.setItem('neo_notes_list', JSON.stringify(notes));
+  }, [notes]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = true;
+      recognitionRef.current.interimResults = true;
+      
+      recognitionRef.current.onresult = (event: any) => {
+        let finalTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            finalTranscript += event.results[i][0].transcript;
+          }
+        }
+        
+        if (finalTranscript && activeNote) {
+          setNotes(prevNotes => prevNotes.map(n => {
+            if (n.id === activeNoteId) {
+              const currentContent = n.content;
+              const separator = currentContent && !currentContent.endsWith(' ') && !currentContent.endsWith('\n') ? ' ' : '';
+              return { ...n, content: currentContent + separator + finalTranscript, timestamp: Date.now() };
+            }
+            return n;
+          }));
+        }
+      };
+
+      recognitionRef.current.onerror = (event: any) => {
+        console.error('Speech recognition error', event.error);
+        setIsRecording(false);
+      };
+
+      recognitionRef.current.onend = () => {
+        setIsRecording(false);
+      };
+    }
+    
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, [activeNoteId]);
+
+  const toggleRecording = () => {
+    if (!recognitionRef.current) {
+      alert("Speech recognition is not supported in your browser.");
+      return;
+    }
+    
+    if (isRecording) {
+      recognitionRef.current.stop();
+      setIsRecording(false);
+    } else {
+      try {
+        recognitionRef.current.start();
+        setIsRecording(true);
+      } catch (e) {
+        console.error("Error starting speech recognition:", e);
+      }
+    }
+  };
+
+  const activeNote = notes.find(n => n.id === activeNoteId);
+
+  const handleNewNote = () => {
+    const now = Date.now();
+    const newNote: Note = {
+      id: now.toString(),
+      title: '',
+      content: '',
+      category: 'Ideas',
+      timestamp: now,
+      createdAt: now
+    };
+    setNotes([newNote, ...notes]);
+    setActiveNoteId(newNote.id);
+    setShowQuickActions(false);
+    setIsPreviewMode(false);
+  };
+
+  const updateActiveNote = (updates: Partial<Note>) => {
+    setNotes(notes.map(n => n.id === activeNoteId ? { ...n, ...updates, timestamp: Date.now() } : n));
+  };
+
+  const insertMarkdown = (prefix: string, suffix: string = '') => {
+    if (!activeNote || !textareaRef.current) return;
+    const textarea = textareaRef.current;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    
+    const content = activeNote.content;
+    const selectedText = content.substring(start, end);
+    const newContent = content.substring(0, start) + prefix + selectedText + suffix + content.substring(end);
+    
+    updateActiveNote({ content: newContent });
+    
+    // Defer focusing back to textarea so React has time to render the new value
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(start + prefix.length, end + prefix.length);
+    }, 0);
+  };
+
+  const handleDuplicateNote = () => {
+    if (!activeNote) return;
+    const now = Date.now();
+    const duplicatedNote: Note = {
+      ...activeNote,
+      id: now.toString(),
+      title: activeNote.title ? `${activeNote.title} (Copy)` : 'Untitled (Copy)',
+      timestamp: now,
+      createdAt: now
+    };
+    setNotes([duplicatedNote, ...notes]);
+    setActiveNoteId(duplicatedNote.id);
+    setShowQuickActions(false);
+    setIsPreviewMode(false);
+  };
+
+  const handleTrashNote = () => {
+    if (!activeNote) return;
+    setNotes(notes.filter(n => n.id !== activeNoteId));
+    setActiveNoteId(null);
+    setShowQuickActions(false);
+    setIsPreviewMode(false);
+  };
+
+  const sortedNotes = [...notes].sort((a, b) => {
+    if (sortBy === 'Last Modified') return b.timestamp - a.timestamp;
+    if (sortBy === 'Created Date') {
+      const createdA = a.createdAt || a.timestamp;
+      const createdB = b.createdAt || b.timestamp;
+      return createdB - createdA;
+    }

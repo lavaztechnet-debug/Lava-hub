@@ -1,0 +1,196 @@
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap');
+@import "tailwindcss";
+
+:root {
+  --neo-bg: #E0E5EC;
+  --neo-text: #4a5568;
+  --neo-text-muted: #94a3b8;
+  --neo-shadow-light: rgba(255, 255, 255, 0.8);
+  --neo-shadow-dark: rgba(163, 177, 198, 0.7);
+}
+
+.dark {
+  --neo-bg: #292d32;
+  --neo-text: #e2e8f0;
+  --neo-text-muted: #64748b;
+  --neo-shadow-light: #363b42;
+  --neo-shadow-dark: #1c1f22;
+}
+
+body {
+  background-color: var(--neo-bg);
+  color: var(--neo-text);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Neumorphic Convex (Out) */
+.neo-flat {
+  background: var(--neo-bg);
+  box-shadow: 9px 9px 16px var(--neo-shadow-dark),
+             -9px -9px 16px var(--neo-shadow-light);
+  border-radius: 16px;
+  transition: all 0.3s ease;
+}
+
+/* Neumorphic Concave (In/Pressed) */
+.neo-pressed {
+  background: var(--neo-bg);
+  box-shadow: inset 6px 6px 10px 0 var(--neo-shadow-dark),
+              inset -6px -6px 10px 0 var(--neo-shadow-light);
+  border-radius: 16px;
+  transition: all 0.3s ease;
+}
+
+/* Neumorphic Input specific for forms */
+.neo-input {
+  background: var(--neo-bg);
+  box-shadow: inset 6px 6px 10px 0 var(--neo-shadow-dark),
+              inset -6px -6px 10px 0 var(--neo-shadow-light);
+  border-radius: 16px;
+  border: none;
+  outline: none;
+  padding: 12px 16px;
+  color: var(--neo-text);
+  transition: all 0.3s ease;
+}
+
+.neo-input:focus {
+  outline: none;
+  /* Make the inner shadow slightly deeper on focus */
+  box-shadow: inset 8px 8px 12px 0 var(--neo-shadow-dark),
+              inset -8px -8px 12px 0 var(--neo-shadow-light);
+}
+
+/* Neumorphic Button Interactive */
+.neo-button {
+  background: var(--neo-bg);
+  box-shadow: 6px 6px 12px var(--neo-shadow-dark),
+             -6px -6px 12px var(--neo-shadow-light);
+  border-radius: 12px;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  color: var(--neo-text);
+  font-weight: 500;
+}
+
+.neo-button:active {
+  box-shadow: inset 4px 4px 8px var(--neo-shadow-dark),
+              inset -4px -4px 8px var(--neo-shadow-light);
+}
+
+.neo-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Bouncing Dots Animation */
+.typing-dot {
+  width: 6px;
+  height: 6px;
+  background-color: var(--neo-text-muted);
+  border-radius: 50%;
+  animation: typing 1.4s infinite ease-in-out both;
+}
+
+.typing-dot:nth-child(1) { animation-delay: -0.32s; }
+.typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes typing {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1); }
+}
+
+/* Markdown Rendering Styles */
+.markdown-body {
+  color: var(--neo-text);
+  line-height: 1.6;
+}
+
+.markdown-body h1, .markdown-body h2, .markdown-body h3, .markdown-body h4 {
+  font-weight: 700;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+.markdown-body h1 { font-size: 1.5em; }
+.markdown-body h2 { font-size: 1.25em; }
+.markdown-body h3 { font-size: 1.1em; }
+
+.markdown-body p, .markdown-body ul, .markdown-body ol {
+  margin-bottom: 1em;
+}
+
+.markdown-body ul {
+  list-style-type: disc;
+  padding-left: 1.5em;
+}
+
+.markdown-body ol {
+  list-style-type: decimal;
+  padding-left: 1.5em;
+}
+
+.markdown-body strong {
+  font-weight: 700;
+}
+
+.markdown-body em {
+  font-style: italic;
+}
+
+.markdown-body blockquote {
+  border-left: 4px solid var(--neo-text-muted);
+  padding-left: 1em;
+  color: var(--neo-text-muted);
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.markdown-body code {
+  background: var(--neo-shadow-light);
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.9em;
+}
+
+.dark .markdown-body code {
+  background: var(--neo-shadow-dark);
+}
+
+/* Neon Cobalt Cursive Text */
+.text-neon-cobalt {
+  font-family: 'Dancing Script', cursive;
+  background: linear-gradient(
+    to right,
+    #0011aa 0%,
+    #1f51ff 30%,
+    #0047ab 50%,
+    #1f51ff 70%,
+    #0022cc 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-size: 1.8rem;
+  letter-spacing: 0.05em;
+  filter: drop-shadow(0px 0px 8px rgba(31, 81, 255, 0.75));
+}
+
+@media (min-width: 640px) {
+  .text-neon-cobalt {
+    font-size: 2.25rem;
+  }
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+/* Hide scrollbar for IE, Edge and Firefox */
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
