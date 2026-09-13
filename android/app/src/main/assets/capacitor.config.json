@@ -1,0 +1,6 @@
+{
+	"appId": "com.lavabot.app",
+	"appName": "Lava-Bot",
+	"webDir": "dist",
+	"bundledWebRuntime": false
+}
