@@ -20,7 +20,7 @@ jobs:
           cache: 'npm'
 
       - name: Install Node dependencies
-        run: npm ci
+        run: npm install
 
       - name: Build Web App
         run: npm run build
@@ -33,7 +33,7 @@ jobs:
 
       - name: Initialize Android Project
         run: |
-          npx cap add android
+          npx cap add android || echo "Platform android already exists"
           npx cap sync android
 
       - name: Build APK (Debug)
